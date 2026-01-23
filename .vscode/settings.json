@@ -1,0 +1,22 @@
+{
+    // python specific editor settings
+    "[python]": {
+        // run formatter on save
+        "editor.formatOnSave": true,
+        // run import organizer on save
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+        // use black formatter
+        "editor.defaultFormatter": "charliermarsh.ruff",
+    },
+    // enable pytests
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    // disable unittests
+    "python.testing.unittestEnabled": false,
+    // disable pylance, we use pyrefly instead
+    "python.languageServer": "None"
+}
