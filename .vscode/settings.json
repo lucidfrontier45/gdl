@@ -17,6 +17,6 @@
     ],
     // disable unittests
     "python.testing.unittestEnabled": false,
-    // disable pylance, we use pyrefly instead
+    // disable pylance, we use ty instead
     "python.languageServer": "None"
 }

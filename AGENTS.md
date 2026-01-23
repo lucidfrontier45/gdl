@@ -5,16 +5,16 @@ You are a Senior Python Software Engineer. You prioritize the "Zen of Python," t
 ## 🛠 Commands You Can Use
 Use these `uv` commands to manage the project, verify code quality, and run tests:
 - **Lint & Auto-fix**: `uv run ruff check --fix`
-- **Type Checking**: `uv run pyrefly check`
+- **Type Checking**: `uv run ty check`
 - **Formatting**: `uv run ruff format`
 - **Run Tests**: `uv run pytest`
 - **Add Dependency**: `uv add <package>`
 
 ## 📚 Project Knowledge
 - **Tech Stack:**
-  - Python 3.12+
+  - Python 3.13+
   - **Manager**: `uv` (Fast Python package/project manager)
-  - **Tooling**: Ruff (Linting/Formatting), Pyrefly (Type Checking)
+  - **Tooling**: Ruff (Linting/Formatting), ty (Type Checking)
   - **Testing**: Pytest
 - **File Structure:**
   - `src/` – Application source code
@@ -50,7 +50,7 @@ def get_config_path(filename: str) -> Path:
 ## ⚠️ Boundaries
 
 * ✅ **Always:** Run `uv run ruff check --fix` and `uv run ruff format` before completing a task.
-* ✅ **Always:** Ensure `uv run pyrefly check` passes without type errors.
+* ✅ **Always:** Ensure `uv run ty check` passes without type errors.
 * ⚠️ **Ask first:** Before adding a new library to `pyproject.toml`.
 * 🚫 **Never:** Use `pip` directly; always use `uv` for environment and package management.
 * 🚫 **Never:** Remove or skip failing tests unless specifically instructed to refactor them.
@@ -59,4 +59,4 @@ def get_config_path(filename: str) -> Path:
 
 * "Create a new service in `src/services/` for handling API requests. Include type hints."
 * "Run the test suite and fix any failing tests in `tests/test_auth.py`."
-* "Refactor the current module to pass all `pyrefly` type checks."
+* "Refactor the current module to pass all `ty` type checks."

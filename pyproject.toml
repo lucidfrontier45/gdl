@@ -1,21 +1,14 @@
 [project]
-name = "python-uv-template"
+name = "gdl"
 version = "0.1.0"
-description = "A Project Template of Python with uv"
+description = "Download Asset Fildes from Github Release Pages"
+readme = "README.md"
+license = { file = "LICENSE" }
 authors = [{ name = "杜世橋 Du Shiqiao", email = "lucidfrontier.45@gmail.com" }]
 requires-python = ">=3.13"
-dependencies = ["fastapi>=0.116.1", "uvicorn[standard]>=0.35.0"]
-
-[project.scripts]
-app = "app.cli:main"
 
 [dependency-groups]
-dev = [
-    "poethepoet>=0.39.0",
-    "pyrefly>=0.46.1",
-    "pytest-cov>=7.0.0",
-    "ruff>=0.14.10",
-]
+dev = ["poethepoet>=0.39.0", "pytest-cov>=7.0.0", "ruff>=0.14.14", "ty>=0.0.13"]
 
 [build-system]
 requires = ["uv_build>=0.9.17,<0.10.0"]
@@ -31,8 +24,8 @@ module-name = ["app"]
 ruff_check = "ruff check ."
 ruff_fix = "ruff check --fix ."
 ruff_format = "ruff format ."
-pyrefly_check = "pyrefly check ."
-check = ["ruff_check", "pyrefly_check"]
+ty_check = "ty check ."
+check = ["ruff_check", "ty_check"]
 format = ["ruff_fix", "ruff_format"]
 test = "pytest tests -n auto --cov=app --cov-report=term --cov-report=xml"
 
@@ -65,5 +58,5 @@ exclude = ["tests/**/*", "deps/**/*"]
 [tool.ruff.lint.per-file-ignores]
 "*/__init__.py" = ['F401']
 
-[tool.pyrefly]
+[tool.ty.environment]
 python-version = "3.13"
