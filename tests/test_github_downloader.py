@@ -5,6 +5,8 @@ from typing import cast, Sequence
 from unittest.mock import patch, MagicMock
 
 from gdl.github_downloader import get_host_os, get_host_arch, match_assets, Asset
+from pathlib import Path
+import httpx
 
 
 class TestPlatformDetection:
@@ -104,3 +106,41 @@ class TestAssetMatching:
         matches = match_assets(assets, "macos", "aarch64", [])
         assert len(matches) == 1
         assert matches[0]["name"] == "binary-mac-arm64.dmg"
+
+
+def test_list_releases_prints_tags(monkeypatch, capsys):
+    # Mock HTTP response for releases
+    releases = [
+        {"tag_name": "v1.0"},
+        {"tag_name": "v1.1"},
+        {"tag_name": "v2.0"},
+    ]
+
+    mock_get = MagicMock()
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = releases
+    mock_resp.raise_for_status.return_value = None
+    mock_get.return_value = mock_resp
+
+    monkeypatch.setattr(httpx, "get", mock_get)
+
+    # Run main with --list
+    from gdl import github_downloader as gd
+
+    class A:
+        repo = "owner/repo"
+        tag = None
+        os = None
+        arch = None
+        blacklist = []
+        no_decompress = False
+        bin_name = None
+        dest = Path(".")
+        list_version = True
+
+    monkeypatch.setattr(gd.tyro, "cli", lambda cls: A())
+    gd.main()
+    captured = capsys.readouterr()
+    assert "v1.0" in captured.out
+    assert "v1.1" in captured.out
+    assert "v2.0" in captured.out

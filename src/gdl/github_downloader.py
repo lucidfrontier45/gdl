@@ -8,11 +8,11 @@ import tempfile
 import zipfile
 from collections.abc import Sequence
 from pathlib import Path
-from typing import TypedDict
+from typing import Annotated, TypedDict
 
 import httpx
 import tyro
-from tyro.conf import Positional
+from tyro.conf import Positional, arg
 
 
 class Asset(TypedDict):
@@ -122,19 +122,48 @@ def download_asset(asset: Asset, dest: Path) -> None:
 
 
 def unpack_asset(
-    asset_path: Path, extract_dir: Path, repo_name: str, host_os: str
+    asset_path: Path, extract_dir: Path, final_name: str, host_os: str
 ) -> Path | None:
     """Unpack compressed asset and return path to the renamed executable binary."""
     if asset_path.suffix == ".zip":
         with zipfile.ZipFile(asset_path, "r") as zf:
-            zf.extractall(extract_dir)
+            # Use a safe extraction: iterate members and write files to target
+            for member in zf.namelist():
+                member_path = extract_dir / member
+                # Prevent path traversal
+                if not str(member_path.resolve()).startswith(
+                    str(extract_dir.resolve())
+                ):
+                    continue
+                if member.endswith("/"):
+                    member_path.mkdir(parents=True, exist_ok=True)
+                else:
+                    member_path.parent.mkdir(parents=True, exist_ok=True)
+                    with zf.open(member) as src, member_path.open("wb") as dst:
+                        shutil.copyfileobj(src, dst)
     elif asset_path.suffixes == [".tar", ".gz"]:
         with tarfile.open(asset_path, "r:gz") as tf:
-            tf.extractall(extract_dir, filter="data")
+            # Safe extraction: only extract regular files and avoid path traversal
+            for member in tf.getmembers():
+                if not member.isreg():
+                    continue
+                member_path = extract_dir / member.name
+                if not str(member_path.resolve()).startswith(
+                    str(extract_dir.resolve())
+                ):
+                    continue
+                member_path.parent.mkdir(parents=True, exist_ok=True)
+                src = tf.extractfile(member)
+                if src is None:
+                    continue
+                with src as src_file, member_path.open("wb") as dst:
+                    shutil.copyfileobj(src_file, dst)
     else:
         # Not compressed, assume it's the binary
         binary_path = asset_path
-        new_name = f"{repo_name}.exe" if host_os == "windows" else repo_name
+        new_name = final_name + (
+            ".exe" if host_os == "windows" and not final_name.endswith(".exe") else ""
+        )
         new_path = asset_path.with_name(new_name)
         binary_path.rename(new_path)
         return new_path
@@ -144,7 +173,11 @@ def unpack_asset(
         if file_path.is_file() and (
             file_path.stat().st_mode & 0o111 or file_path.suffix == ".exe"
         ):
-            new_name = f"{repo_name}.exe" if host_os == "windows" else repo_name
+            new_name = final_name + (
+                ".exe"
+                if host_os == "windows" and not final_name.endswith(".exe")
+                else ""
+            )
             new_path = file_path.with_name(new_name)
             file_path.rename(new_path)
             return new_path
@@ -158,6 +191,10 @@ class Args:
     os: str | None = None
     arch: str | None = None
     blacklist: list[str] = dataclasses.field(default_factory=list)
+    no_decompress: bool = False
+    bin_name: Annotated[str | None, arg(name="bin-name", aliases=["-b"])] = None
+    dest: Annotated[Path, arg(name="dest", aliases=["-d"])] = Path(".")
+    list_version: Annotated[bool, arg(name="list", aliases=["-l"])] = False
 
 
 def main() -> None:
@@ -170,6 +207,19 @@ def main() -> None:
 
     # Get repo name
     _, repo_name = args.repo.split("/", 1)
+
+    # If listing releases, print tags and exit
+    if getattr(args, "list_version", False):
+        owner, repo_only = args.repo.split("/", 1)
+        url = f"https://api.github.com/repos/{owner}/{repo_only}/releases"
+        response = httpx.get(url)
+        response.raise_for_status()
+        releases = response.json()
+        for rel in releases:
+            tag = rel.get("tag_name")
+            if tag:
+                print(tag)
+        return
 
     # Fetch assets
     assets = get_release_assets(args.repo, args.tag)
@@ -188,17 +238,26 @@ def main() -> None:
         temp_path = Path(temp_dir) / asset["name"]
         download_asset(asset, temp_path)
 
+        # Handle no-decompress: copy archive as-is to destination
+        install_dir = Path(args.dest)
+        install_dir.mkdir(parents=True, exist_ok=True)
+        if args.no_decompress:
+            final_path = install_dir / temp_path.name
+            shutil.copy2(temp_path, final_path)
+            print(f"Saved {final_path}")
+            return
+
         # Unpack and rename
         extract_dir = Path(temp_dir) / "extract"
         extract_dir.mkdir()
-        binary_path = unpack_asset(temp_path, extract_dir, repo_name, host_os)
+        final_name = args.bin_name or repo_name
+        binary_path = unpack_asset(temp_path, extract_dir, final_name, host_os)
 
         if not binary_path:
             print("Failed to extract binary.")
             return
 
-        # Install to current directory
-        install_dir = Path.cwd()
+        # Install to destination directory
         final_path = install_dir / binary_path.name
         shutil.copy2(binary_path, final_path)
         print(f"Installed {final_path}")

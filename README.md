@@ -38,6 +38,10 @@ uv run python -m gdl [OPTIONS] REPO
 - `--arch TEXT`: Override host architecture (x86_64, aarch64)
 - `--blacklist TEXT`: Words to exclude from asset names (can be specified multiple times)
 - `--help`: Show help message
+ - `--no-decompress`: Save downloaded file without extracting/decompressing it
+ - `-b, --bin-name TEXT`: Specify the final executable filename (defaults to repository name; `.exe` is added on Windows when appropriate)
+ - `-d, --dest PATH`: Destination directory for saved file or extracted binary (defaults to `.`). Directory is created if needed.
+ - `-l, --list`: List available release versions for the specified repository and exit (exposed as `list_version` in the CLI data model)
 
 ### Examples
 
