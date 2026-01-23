@@ -8,7 +8,7 @@ import tempfile
 import zipfile
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Annotated, TypedDict
+from typing import TypedDict
 
 import httpx
 import tyro
@@ -64,7 +64,7 @@ def match_assets(
 ) -> list[Asset]:
     """Filter assets matching OS, arch, and not containing blacklist words."""
     os_synonyms = {
-        "windows": ["windows", "win", "win32"],
+        "windows": ["windows", "win32"],
         "linux": ["linux"],
         "macos": ["macos", "mac", "darwin"],
     }

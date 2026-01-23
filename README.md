@@ -67,7 +67,7 @@ uv run python -m gdl microsoft/vscode --blacklist debug --blacklist test
 
 ## Platform Support
 
-- **OS**: windows (synonyms: win, win32), linux, macos (synonyms: mac, darwin)
+- **OS**: windows (synonyms: win32), linux, macos (synonyms: mac, darwin)
 - **Arch**: x86_64 (synonyms: x64, amd64), aarch64 (synonyms: arm64)
 
 ## Requirements

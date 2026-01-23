@@ -81,9 +81,9 @@ class TestAssetMatching:
     def test_match_assets_synonyms(self):
         assets: list[Asset] = [
             {
-                "name": "binary-win-x86_64.zip",
-                "browser_download_url": "http://example.com/win.zip",
-            },  # win instead of windows
+                "name": "binary-win32-x86_64.zip",
+                "browser_download_url": "http://example.com/win32.zip",
+            },  # win32 instead of windows
             {
                 "name": "binary-linux-amd64.tar.gz",
                 "browser_download_url": "http://example.com/linux.tar.gz",
@@ -95,7 +95,7 @@ class TestAssetMatching:
         ]
         matches = match_assets(assets, "windows", "x86_64", [])
         assert len(matches) == 1
-        assert matches[0]["name"] == "binary-win-x86_64.zip"
+        assert matches[0]["name"] == "binary-win32-x86_64.zip"
 
         matches = match_assets(assets, "linux", "x86_64", [])
         assert len(matches) == 1
