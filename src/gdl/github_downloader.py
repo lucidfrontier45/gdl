@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Annotated, TypedDict
 
 import httpx
+import tqdm
 import tyro
 from tyro.conf import Positional, arg
 
@@ -116,9 +117,19 @@ def download_asset(asset: Asset, dest: Path) -> None:
     url = asset["browser_download_url"]
     with httpx.stream("GET", url, follow_redirects=True) as response:
         response.raise_for_status()
-        with dest.open("wb") as f:
+        total_size = int(response.headers.get("content-length", 0))
+        with (
+            dest.open("wb") as f,
+            tqdm.tqdm(
+                total=total_size,
+                unit="B",
+                unit_scale=True,
+                desc=asset["name"],
+            ) as pbar,
+        ):
             for chunk in response.iter_bytes():
                 f.write(chunk)
+                pbar.update(len(chunk))
 
 
 def unpack_asset(

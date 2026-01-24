@@ -6,7 +6,11 @@ readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "杜世橋 Du Shiqiao", email = "lucidfrontier.45@gmail.com" }]
 requires-python = ">=3.13"
-dependencies = ["httpx>=0.25.0", "tyro>=0.8.0"]
+dependencies = [
+    "httpx>=0.25.0",
+    "tqdm>=4.67.1",
+    "tyro>=0.8.0",
+]
 
 [dependency-groups]
 dev = ["poethepoet>=0.39.0", "pytest-cov>=7.0.0", "ruff>=0.14.14", "ty>=0.0.13"]
