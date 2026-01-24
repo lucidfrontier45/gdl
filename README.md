@@ -1,6 +1,4 @@
-# gdl
-
-Download Asset Files from GitHub Release Pages
+<img src="./logo.png" width="500" alt="gdl logo" />
 
 `gdl` is a command-line tool that downloads prebuilt executable binaries from GitHub release pages, automatically matching the host platform (OS and architecture). It supports filtering, unpacking compressed archives, and installing the binary to the current directory.
 
