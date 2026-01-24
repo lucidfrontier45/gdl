@@ -17,18 +17,14 @@ Download Asset Files from GitHub Release Pages
 - Secure extraction with filters to prevent malicious archive issues
 - HTTP redirect handling
 
-## Installation
-
-Clone the repository and install dependencies:
-
-```bash
-uv sync
-```
-
 ## Usage
 
 ```bash
-uv run python -m gdl [OPTIONS] REPO
+# stable release (recommended)
+uvx gdl [OPTIONS] REPO
+
+# install and run the latest code directly from GitHub
+uvx git+https://github.com/lucidfrontier45/gdl [OPTIONS] REPO
 ```
 
 ### Arguments
@@ -55,25 +51,25 @@ uv run python -m gdl [OPTIONS] REPO
 Download the latest release binary for the host platform:
 
 ```bash
-uv run python -m gdl microsoft/vscode
+uvx gdl microsoft/vscode
 ```
 
 Download a specific tag:
 
 ```bash
-uv run python -m gdl microsoft/vscode --tag 1.80.0
+uvx gdl microsoft/vscode --tag 1.80.0
 ```
 
 Override platform:
 
 ```bash
-uv run python -m gdl microsoft/vscode --os linux --arch x86_64
+uvx gdl microsoft/vscode --os linux --arch x86_64
 ```
 
 Exclude debug builds:
 
 ```bash
-uv run python -m gdl microsoft/vscode --stop-words debug --stop-words test
+uvx gdl microsoft/vscode --stop-words debug --stop-words test
 ```
 
 ## Platform Support
