@@ -1,12 +1,27 @@
 [project]
+license = { text = "MIT" }
 name = "gdl"
 version = "0.1.0"
 description = "Download Asset Fildes from Github Release Pages"
 readme = "README.md"
-license = { file = "LICENSE" }
+keywords = ["github", "python", "downloader"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.13",
+]
 authors = [{ name = "杜世橋 Du Shiqiao", email = "lucidfrontier.45@gmail.com" }]
 requires-python = ">=3.13"
 dependencies = ["httpx>=0.25.0", "tqdm>=4.67.1", "tyro>=1.0.5"]
+
+[project.urls]
+Homepage = "https://github.com/lucidfrontier45/gdl"
+Repository = "https://github.com/lucidfrontier45/gdl"
+Documentation = "https://github.com/lucidfrontier45/gdl#readme"
+Tracker = "https://github.com/lucidfrontier45/gdl/issues"
+Changelog = "https://github.com/lucidfrontier45/gdl/releases"
 
 [project.scripts]
 gdl = "gdl.cli:main"

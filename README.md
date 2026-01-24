@@ -15,14 +15,16 @@
 - Secure extraction with filters to prevent malicious archive issues
 - HTTP redirect handling
 
+## Installation
+
+```bash
+uv tool install git+https://github.com/lucidfrontier45/gdl
+```
+
 ## Usage
 
 ```bash
-# stable release (recommended)
-uvx gdl [OPTIONS] REPO
-
-# install and run the latest code directly from GitHub
-uvx git+https://github.com/lucidfrontier45/gdl [OPTIONS] REPO
+gdl REPO [OPTIONS]
 ```
 
 ### Arguments
@@ -49,25 +51,25 @@ uvx git+https://github.com/lucidfrontier45/gdl [OPTIONS] REPO
 Download the latest release binary for the host platform:
 
 ```bash
-uvx gdl microsoft/vscode
+gdl owner/repo
 ```
 
 Download a specific tag:
 
 ```bash
-uvx gdl microsoft/vscode --tag 1.80.0
+gdl owner/repo --tag 1.80.0
 ```
 
 Override platform:
 
 ```bash
-uvx gdl microsoft/vscode --os linux --arch x86_64
+gdl owner/repo --os linux --arch x86_64
 ```
 
 Exclude debug builds:
 
 ```bash
-uvx gdl microsoft/vscode --stop-words debug --stop-words test
+gdl owner/repo --stop-words debug --stop-words test
 ```
 
 ## Platform Support
