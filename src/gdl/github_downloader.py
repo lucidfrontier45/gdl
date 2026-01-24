@@ -1,8 +1,11 @@
 """GitHub Binary Downloader CLI Tool."""
 
+import contextlib
 import dataclasses
 import platform
 import shutil
+import stat
+import sys
 import tarfile
 import tempfile
 import zipfile
@@ -133,7 +136,11 @@ def download_asset(asset: Asset, dest: Path) -> None:
 
 
 def unpack_asset(
-    asset_path: Path, extract_dir: Path, final_name: str, host_os: str
+    asset_path: Path,
+    extract_dir: Path,
+    final_name: str,
+    host_os: str,
+    choose_bin_file: bool = False,
 ) -> Path | None:
     """Unpack compressed asset and return path to the renamed executable binary."""
     if asset_path.suffix == ".zip":
@@ -179,20 +186,77 @@ def unpack_asset(
         binary_path.rename(new_path)
         return new_path
 
-    # Find the executable binary
-    for file_path in extract_dir.rglob("*"):
-        if file_path.is_file() and (
-            file_path.stat().st_mode & 0o111 or file_path.suffix == ".exe"
-        ):
-            new_name = final_name + (
-                ".exe"
-                if host_os == "windows" and not final_name.endswith(".exe")
-                else ""
+    # Collect candidate files
+    candidates: list[Path] = [p for p in extract_dir.rglob("*") if p.is_file()]
+    if not candidates:
+        return None
+
+    # If interactive choice requested, present choices in descending size order
+    if choose_bin_file:
+        # This check will also be enforced in main, but double-check here
+        if not sys.stdin.isatty():
+            print(
+                "Error: --choose-bin-file requires an interactive TTY."
+                " Run without this flag to auto-select the binary."
             )
-            new_path = file_path.with_name(new_name)
-            file_path.rename(new_path)
-            return new_path
-    return None
+            return None
+
+        # Sort by size desc
+        candidates_sorted = sorted(
+            candidates, key=lambda p: p.stat().st_size, reverse=True
+        )
+        print(
+            "Multiple candidate files found. Choose which to use as the final binary:"
+        )
+        for i, p in enumerate(candidates_sorted, start=1):
+            print(f"{i}) {p.relative_to(extract_dir)} {p.stat().st_size} bytes")
+        while True:
+            choice = input(
+                f"Choose file [1-{len(candidates_sorted)}] (default 1): "
+            ).strip()
+            if choice == "":
+                chosen = candidates_sorted[0]
+                break
+            try:
+                idx = int(choice)
+                if 1 <= idx <= len(candidates_sorted):
+                    chosen = candidates_sorted[idx - 1]
+                    break
+            except ValueError:
+                pass
+            print("Invalid choice, please enter a number from the list.")
+
+    else:
+        # Apply prioritized selection:
+        # 1) files with .exe suffix (case-insensitive)
+        exe_candidates = [p for p in candidates if p.suffix.lower() == ".exe"]
+
+        def pick_largest_with_tiebreak(files: list[Path]) -> Path:
+            # pick by largest size, tie-break by lexical order of relative path
+            files_sorted = sorted(
+                files,
+                key=lambda p: (-p.stat().st_size, str(p.relative_to(extract_dir))),
+            )
+            return files_sorted[0]
+
+        if exe_candidates:
+            chosen = pick_largest_with_tiebreak(exe_candidates)
+        else:
+            # 2) files with unix exec permission
+            exec_candidates = [p for p in candidates if p.stat().st_mode & 0o111]
+            if exec_candidates:
+                chosen = pick_largest_with_tiebreak(exec_candidates)
+            else:
+                # 3) fallback to largest file
+                chosen = pick_largest_with_tiebreak(candidates)
+
+    # Rename chosen file to final name (add .exe on Windows if needed)
+    new_name = final_name + (
+        ".exe" if host_os == "windows" and not final_name.endswith(".exe") else ""
+    )
+    new_path = chosen.with_name(new_name)
+    chosen.rename(new_path)
+    return new_path
 
 
 @dataclasses.dataclass
@@ -206,6 +270,7 @@ class Args:
     bin_name: Annotated[str | None, arg(name="bin-name", aliases=["-b"])] = None
     dest: Annotated[Path, arg(name="dest", aliases=["-d"])] = Path(".")
     list_version: Annotated[bool, arg(name="list", aliases=["-l"])] = False
+    choose_bin_file: Annotated[bool, arg(name="choose-bin-file")] = False
 
 
 def main() -> None:
@@ -262,7 +327,13 @@ def main() -> None:
         extract_dir = Path(temp_dir) / "extract"
         extract_dir.mkdir()
         final_name = args.bin_name or repo_name
-        binary_path = unpack_asset(temp_path, extract_dir, final_name, host_os)
+        binary_path = unpack_asset(
+            temp_path,
+            extract_dir,
+            final_name,
+            host_os,
+            choose_bin_file=args.choose_bin_file,
+        )
 
         if not binary_path:
             print("Failed to extract binary.")
@@ -271,6 +342,13 @@ def main() -> None:
         # Install to destination directory
         final_path = install_dir / binary_path.name
         shutil.copy2(binary_path, final_path)
+
+        # Ensure POSIX execute permission on Unix-like systems for the installed binary
+        if platform.system().lower() in ("linux", "darwin"):
+            mode = final_path.stat().st_mode
+            with contextlib.suppress(OSError):
+                final_path.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
         print(f"Installed {final_path}")
 
 
