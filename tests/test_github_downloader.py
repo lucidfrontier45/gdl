@@ -4,7 +4,9 @@ import pytest
 from typing import cast, Sequence
 from unittest.mock import patch, MagicMock
 
-from gdl.github_downloader import get_host_os, get_host_arch, match_assets, Asset
+from gdl.platform import get_host_os, get_host_arch
+from gdl.github import match_assets, Asset
+from gdl.platform import os_synonyms, arch_synonyms
 from pathlib import Path
 import httpx
 
@@ -61,7 +63,9 @@ class TestAssetMatching:
                 "browser_download_url": "http://example.com/linux.tar.gz",
             },
         ]
-        matches = match_assets(assets, "linux", "x86_64", [])
+        matches = match_assets(
+            assets, "linux", "x86_64", [], os_synonyms, arch_synonyms
+        )
         assert len(matches) == 1
         assert matches[0]["name"] == "binary-linux-x86_64.zip"
 
@@ -76,7 +80,9 @@ class TestAssetMatching:
                 "browser_download_url": "http://example.com/debug.zip",
             },
         ]
-        matches = match_assets(assets, "linux", "x86_64", ["debug"])
+        matches = match_assets(
+            assets, "linux", "x86_64", ["debug"], os_synonyms, arch_synonyms
+        )
         assert len(matches) == 1
         assert matches[0]["name"] == "binary-linux-x86_64.zip"
 
@@ -95,15 +101,21 @@ class TestAssetMatching:
                 "browser_download_url": "http://example.com/mac.dmg",
             },  # mac and arm64
         ]
-        matches = match_assets(assets, "windows", "x86_64", [])
+        matches = match_assets(
+            assets, "windows", "x86_64", [], os_synonyms, arch_synonyms
+        )
         assert len(matches) == 1
         assert matches[0]["name"] == "binary-win32-x86_64.zip"
 
-        matches = match_assets(assets, "linux", "x86_64", [])
+        matches = match_assets(
+            assets, "linux", "x86_64", [], os_synonyms, arch_synonyms
+        )
         assert len(matches) == 1
         assert matches[0]["name"] == "binary-linux-amd64.tar.gz"
 
-        matches = match_assets(assets, "macos", "aarch64", [])
+        matches = match_assets(
+            assets, "macos", "aarch64", [], os_synonyms, arch_synonyms
+        )
         assert len(matches) == 1
         assert matches[0]["name"] == "binary-mac-arm64.dmg"
 
@@ -125,7 +137,7 @@ def test_list_releases_prints_tags(monkeypatch, capsys):
     monkeypatch.setattr(httpx, "get", mock_get)
 
     # Run main with --list
-    from gdl import github_downloader as gd
+    from gdl import cli as gd
 
     class A:
         repo = "owner/repo"
