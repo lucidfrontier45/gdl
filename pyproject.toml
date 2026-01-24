@@ -12,6 +12,9 @@ dependencies = [
     "tyro>=0.8.0",
 ]
 
+[project.scripts]
+gdl = "gdl.cli:main"
+
 [dependency-groups]
 dev = ["poethepoet>=0.39.0", "pytest-cov>=7.0.0", "ruff>=0.14.14", "ty>=0.0.13"]
 
