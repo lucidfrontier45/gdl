@@ -27,7 +27,7 @@ def match_assets(
     assets: Sequence[Asset],
     os: str,
     arch: str,
-    blacklist: list[str],
+    stop_words: list[str],
     os_synonyms: dict[str, tuple[str, ...]],
     arch_synonyms: dict[str, tuple[str, ...]],
 ) -> list[Asset]:
@@ -41,7 +41,7 @@ def match_assets(
             term in name for term in arch_terms
         ):
             continue
-        if any(word.lower() in name for word in blacklist):
+        if any(word.lower() in name for word in stop_words):
             continue
         matches.append(asset)
     return matches

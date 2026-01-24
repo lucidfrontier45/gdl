@@ -36,7 +36,7 @@ uv run python -m gdl [OPTIONS] REPO
 - `--tag TEXT`: Specific release tag (defaults to latest)
 - `--os TEXT`: Override host OS (windows, linux, macos)
 - `--arch TEXT`: Override host architecture (x86_64, aarch64)
-- `--blacklist TEXT`: Words to exclude from asset names (can be specified multiple times)
+ - `--stop-words TEXT`: Words to exclude from asset names (can be specified multiple times)
 - `--help`: Show help message
  - `--no-decompress`: Save downloaded file without extracting/decompressing it
  - `-b, --bin-name TEXT`: Specify the final executable filename (defaults to repository name; `.exe` is added on Windows when appropriate)
@@ -66,7 +66,7 @@ uv run python -m gdl microsoft/vscode --os linux --arch x86_64
 Exclude debug builds:
 
 ```bash
-uv run python -m gdl microsoft/vscode --blacklist debug --blacklist test
+uv run python -m gdl microsoft/vscode --stop-words debug --stop-words test
 ```
 
 ## Platform Support

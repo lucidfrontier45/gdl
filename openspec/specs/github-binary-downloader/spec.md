@@ -46,13 +46,18 @@ Given repo has assets for linux-x86_64 and linux-aarch64
 When os="linux", no arch specified (host is x86_64)
 Then prompts user to choose between the two
 
-### Requirement: Blacklist Filtering
-The tool SHALL support blacklist words to exclude assets.
+### Requirement: Stop Words Filtering
+The tool SHALL support stop words to exclude assets by name.
 
-#### Scenario: Blacklist words
-Given blacklist ["debug", "test"]
+#### Scenario: Stop words
+Given stop_words ["debug", "test"]
 When assets include "binary-debug.zip"
 Then excludes it from selection
+
+#### Scenario: Remove blacklist option
+Given command-line uses `--blacklist debug`
+When processing arguments
+Then the tool rejects the option and returns an error indicating the flag has been removed; documentation points users to use `--stop-words` instead
 
 ### Requirement: Unpacking and Renaming
 The tool SHALL unpack compressed assets (zip, tar.gz), extract the executable, and rename to the repo name with .exe on Windows.

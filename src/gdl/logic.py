@@ -16,7 +16,7 @@ def install_from_github(
     tag: str | None = None,
     os_name: str | None = None,
     arch: str | None = None,
-    blacklist: list[str] | None = None,
+    stop_words: list[str] | None = None,
     dest: Path = Path("."),
     no_decompress: bool = False,
     bin_name: str | None = None,
@@ -28,13 +28,13 @@ def install_from_github(
     _, repo_name = repo.split("/", 1)
 
     assets = github.list_release_assets(repo, tag)
-    if blacklist is None:
-        blacklist = []
+    if stop_words is None:
+        stop_words = []
     matches = github.match_assets(
         assets,
         host_os,
         host_arch,
-        blacklist,
+        stop_words,
         platform_mod.os_synonyms,
         platform_mod.arch_synonyms,
     )

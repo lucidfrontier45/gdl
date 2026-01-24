@@ -69,7 +69,7 @@ class TestAssetMatching:
         assert len(matches) == 1
         assert matches[0]["name"] == "binary-linux-x86_64.zip"
 
-    def test_match_assets_blacklist(self):
+    def test_match_assets_stop_words(self):
         assets: list[Asset] = [
             {
                 "name": "binary-linux-x86_64.zip",
@@ -144,7 +144,7 @@ def test_list_releases_prints_tags(monkeypatch, capsys):
         tag = None
         os = None
         arch = None
-        blacklist = []
+        stop_words = []
         no_decompress = False
         bin_name = None
         dest = Path(".")

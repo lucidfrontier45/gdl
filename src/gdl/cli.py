@@ -16,7 +16,7 @@ class Args:
     tag: str | None = None
     os: str | None = None
     arch: str | None = None
-    blacklist: list[str] = dataclasses.field(default_factory=list)
+    stop_words: list[str] = dataclasses.field(default_factory=list)
     no_decompress: bool = False
     bin_name: Annotated[str | None, arg(name="bin-name", aliases=["-b"])] = None
     dest: Annotated[Path, arg(name="dest", aliases=["-d"])] = Path(".")
@@ -46,7 +46,7 @@ def main() -> None:
         tag=args.tag,
         os_name=args.os,
         arch=args.arch,
-        blacklist=args.blacklist,
+        stop_words=args.stop_words,
         dest=args.dest,
         no_decompress=args.no_decompress,
         bin_name=args.bin_name,
