@@ -1,5 +1,6 @@
 """GitHub asset listing, matching and downloading."""
 
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 from typing import TypedDict
@@ -52,12 +53,21 @@ def choose_asset(assets: Sequence[Asset]) -> Asset | None:
         return None
     if len(assets) == 1:
         return assets[0]
+    # Interactive selection: require TTY for user prompts
+
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        raise RuntimeError(
+            "--choose-asset-file requires an interactive terminal (TTY); "
+            "remove the flag to use automatic filtering."
+        )
 
     print("Multiple assets found:")
     for i, asset in enumerate(assets):
         print(f"{i + 1}: {asset['name']}")
 
-    while True:
+    attempts = 0
+    while attempts < 3:
+        attempts += 1
         try:
             choice = int(input("Choose an asset (number): ")) - 1
             if 0 <= choice < len(assets):
@@ -66,6 +76,7 @@ def choose_asset(assets: Sequence[Asset]) -> Asset | None:
                 print("Invalid choice.")
         except ValueError:
             print("Please enter a number.")
+    raise RuntimeError("Too many invalid attempts selecting asset; aborting.")
 
 
 def download_asset(asset: Asset, dest: Path) -> None:

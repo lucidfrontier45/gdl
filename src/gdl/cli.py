@@ -22,6 +22,7 @@ class Args:
     dest: Annotated[Path, arg(name="dest", aliases=["-d"])] = Path(".")
     list_version: Annotated[bool, arg(name="list", aliases=["-l"])] = False
     choose_bin_file: Annotated[bool, arg(name="choose-bin-file")] = False
+    choose_asset_file: Annotated[bool, arg(name="choose-asset-file")] = False
 
 
 def main() -> None:
@@ -51,6 +52,7 @@ def main() -> None:
         no_decompress=args.no_decompress,
         bin_name=args.bin_name,
         choose_bin_file=args.choose_bin_file,
+        choose_asset_file=args.choose_asset_file,
     )
 
 

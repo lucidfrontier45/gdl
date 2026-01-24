@@ -21,6 +21,7 @@ def install_from_github(
     no_decompress: bool = False,
     bin_name: str | None = None,
     choose_bin_file: bool = False,
+    choose_asset_file: bool = False,
 ):
     host_os = os_name or platform_mod.get_host_os()
     host_arch = arch or platform_mod.get_host_arch()
@@ -30,15 +31,19 @@ def install_from_github(
     assets = github.list_release_assets(repo, tag)
     if stop_words is None:
         stop_words = []
-    matches = github.match_assets(
-        assets,
-        host_os,
-        host_arch,
-        stop_words,
-        platform_mod.os_synonyms,
-        platform_mod.arch_synonyms,
-    )
-    asset = github.choose_asset(matches)
+    if choose_asset_file:
+        # Present all assets to user (no filtering) and let them choose
+        asset = github.choose_asset(assets)
+    else:
+        matches = github.match_assets(
+            assets,
+            host_os,
+            host_arch,
+            stop_words,
+            platform_mod.os_synonyms,
+            platform_mod.arch_synonyms,
+        )
+        asset = github.choose_asset(matches)
     if not asset:
         raise FileNotFoundError("No matching asset found")
 
