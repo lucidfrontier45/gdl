@@ -124,7 +124,7 @@ dev = [
 requires-dist = [
     { name = "httpx", specifier = ">=0.25.0" },
     { name = "tqdm", specifier = ">=4.67.1" },
-    { name = "tyro", specifier = ">=0.8.0" },
+    { name = "tyro", specifier = ">=1.0.5" },
 ]
 
 [package.metadata.requires-dev]
