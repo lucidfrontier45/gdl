@@ -1,5 +1,6 @@
 """GitHub asset listing, matching and downloading."""
 
+import re
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -35,14 +36,21 @@ def match_assets(
     os_terms = os_synonyms.get(os, (os,))
     arch_terms = arch_synonyms.get(arch, (arch,))
 
+    os_patterns = [
+        re.compile(rf"\b{re.escape(term)}\b", re.IGNORECASE) for term in os_terms
+    ]
+    arch_patterns = [
+        re.compile(rf"\b{re.escape(term)}\b", re.IGNORECASE) for term in arch_terms
+    ]
+
     matches: list[Asset] = []
     for asset in assets:
-        name = asset["name"].lower()
-        if not any(term in name for term in os_terms) or not any(
-            term in name for term in arch_terms
+        name = asset["name"]
+        if not any(pattern.search(name) for pattern in os_patterns) or not any(
+            pattern.search(name) for pattern in arch_patterns
         ):
             continue
-        if any(word.lower() in name for word in stop_words):
+        if any(word.lower() in name.lower() for word in stop_words):
             continue
         matches.append(asset)
     return matches

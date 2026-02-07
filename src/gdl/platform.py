@@ -3,13 +3,13 @@
 import platform
 
 os_synonyms: dict[str, tuple[str, ...]] = {
-    "windows": ("windows", "win32"),
+    "windows": ("windows", "win", "win32", "win64"),
     "linux": ("linux",),
     "macos": ("macos", "mac", "darwin"),
 }
 
 arch_synonyms: dict[str, tuple[str, ...]] = {
-    "x86_64": ("x86_64", "x64", "amd64"),
+    "x86_64": ("x86_64", "x64", "amd64", "win32", "win64"),
     "aarch64": ("aarch64", "arm64"),
 }
 

@@ -119,6 +119,96 @@ class TestAssetMatching:
         assert len(matches) == 1
         assert matches[0]["name"] == "binary-mac-arm64.dmg"
 
+    def test_match_assets_windows_lowercase(self):
+        assets: list[Asset] = [
+            {
+                "name": "binary-windows-x86_64.exe",
+                "browser_download_url": "http://example.com/win.exe",
+            },
+        ]
+        matches = match_assets(
+            assets, "windows", "x86_64", [], os_synonyms, arch_synonyms
+        )
+        assert len(matches) == 1
+        assert matches[0]["name"] == "binary-windows-x86_64.exe"
+
+    def test_match_assets_windows_mixed_case(self):
+        assets: list[Asset] = [
+            {
+                "name": "binary-Windows-x86_64.exe",
+                "browser_download_url": "http://example.com/win.exe",
+            },
+        ]
+        matches = match_assets(
+            assets, "windows", "x86_64", [], os_synonyms, arch_synonyms
+        )
+        assert len(matches) == 1
+        assert matches[0]["name"] == "binary-Windows-x86_64.exe"
+
+    def test_match_assets_windows_uppercase(self):
+        assets: list[Asset] = [
+            {
+                "name": "binary-WINDOWS-x86_64.exe",
+                "browser_download_url": "http://example.com/win.exe",
+            },
+        ]
+        matches = match_assets(
+            assets, "windows", "x86_64", [], os_synonyms, arch_synonyms
+        )
+        assert len(matches) == 1
+        assert matches[0]["name"] == "binary-WINDOWS-x86_64.exe"
+
+    def test_match_assets_win_pattern(self):
+        assets: list[Asset] = [
+            {
+                "name": "binary-win-x86_64.exe",
+                "browser_download_url": "http://example.com/win.exe",
+            },
+        ]
+        matches = match_assets(
+            assets, "windows", "x86_64", [], os_synonyms, arch_synonyms
+        )
+        assert len(matches) == 1
+        assert matches[0]["name"] == "binary-win-x86_64.exe"
+
+    def test_match_assets_win32_pattern(self):
+        assets: list[Asset] = [
+            {
+                "name": "binary-win32-x86_64.exe",
+                "browser_download_url": "http://example.com/win32.exe",
+            },
+        ]
+        matches = match_assets(
+            assets, "windows", "x86_64", [], os_synonyms, arch_synonyms
+        )
+        assert len(matches) == 1
+        assert matches[0]["name"] == "binary-win32-x86_64.exe"
+
+    def test_match_assets_win64_pattern(self):
+        assets: list[Asset] = [
+            {
+                "name": "binary-win64-x86_64.exe",
+                "browser_download_url": "http://example.com/win64.exe",
+            },
+        ]
+        matches = match_assets(
+            assets, "windows", "x86_64", [], os_synonyms, arch_synonyms
+        )
+        assert len(matches) == 1
+        assert matches[0]["name"] == "binary-win64-x86_64.exe"
+
+    def test_match_assets_false_positive_prevention(self):
+        assets: list[Asset] = [
+            {
+                "name": "binary-twin-x86_64.tar.gz",
+                "browser_download_url": "http://example.com/twin.tar.gz",
+            },
+        ]
+        matches = match_assets(
+            assets, "windows", "x86_64", [], os_synonyms, arch_synonyms
+        )
+        assert len(matches) == 0
+
 
 def test_list_releases_prints_tags(monkeypatch, capsys):
     # Mock HTTP response for releases
